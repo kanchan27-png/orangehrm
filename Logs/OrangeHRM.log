@@ -1,0 +1,74 @@
+2023-08-09 19:42:44,419 : INFO : Test_Login : test_login_002 : 30 : Testcase test_login_002 is started
+2023-08-09 19:42:44,420 : INFO : Test_Login : test_login_002 : 31 : Opening browser
+2023-08-09 19:42:44,420 : INFO : Test_Login : test_login_002 : 34 : Entering Username
+2023-08-09 19:42:45,685 : INFO : Test_Login : test_login_002 : 36 : Entering password
+2023-08-09 19:42:45,924 : INFO : Test_Login : test_login_002 : 38 : Clicking in login button
+2023-08-09 19:42:46,266 : INFO : Test_Login : test_login_002 : 41 : Checking login status
+2023-08-09 19:42:48,925 : INFO : Test_Login : test_login_002 : 43 : taking screenshot
+2023-08-09 19:42:50,269 : INFO : Test_Login : test_login_002 : 46 : Clicking on Menu button
+2023-08-09 19:42:50,750 : INFO : Test_Login : test_login_002 : 48 : Clicking on logout button
+2023-08-09 19:42:52,658 : INFO : Test_Login : test_login_002 : 51 : Testcase test_login_002 is passed
+2023-08-09 19:47:21,254 : INFO : Test_Login : test_login_002 : 30 : Testcase test_login_002 is started
+2023-08-09 19:47:21,302 : INFO : Test_Login : test_login_002 : 31 : Opening browser
+2023-08-09 19:47:21,302 : INFO : Test_Login : test_login_002 : 34 : Entering Username
+2023-08-09 19:47:21,478 : INFO : Test_Login : test_page_title_001 : 13 : Testcase test_page_title_001 is started
+2023-08-09 19:47:21,478 : INFO : Test_Login : test_page_title_001 : 14 : Opening browser
+2023-08-09 19:47:21,494 : INFO : Test_Login : test_page_title_001 : 16 : Page Title is OrangeHRM
+2023-08-09 19:47:21,502 : INFO : Test_Login : test_page_title_001 : 18 : Taking screenshot
+2023-08-09 19:47:22,084 : INFO : Test_Login : test_page_title_001 : 21 : Testcase test_page_title_001 is passed
+2023-08-09 19:47:23,154 : INFO : Test_Login : test_login_002 : 36 : Entering password
+2023-08-09 19:47:23,449 : INFO : Test_Login : test_login_002 : 38 : Clicking in login button
+2023-08-09 19:47:24,862 : INFO : Test_Login : test_login_002 : 41 : Checking login status
+2023-08-09 19:47:25,677 : INFO : Test_Login : test_login_002 : 43 : taking screenshot
+2023-08-09 19:47:27,100 : INFO : Test_Login : test_login_002 : 46 : Clicking on Menu button
+2023-08-09 19:47:27,400 : INFO : Test_Login : test_login_002 : 48 : Clicking on logout button
+2023-08-09 19:47:28,482 : INFO : Test_Login : test_login_002 : 51 : Testcase test_login_002 is passed
+2023-08-10 22:01:20,661 : INFO : Test_Login : test_page_title_001 : 23 : Testcase test_page_title_001 is started
+2023-08-10 22:01:20,671 : INFO : Test_Login : test_page_title_001 : 24 : Opening browser
+2023-08-10 22:01:20,680 : INFO : Test_Login : test_page_title_001 : 26 : Page Title is OrangeHRM
+2023-08-10 22:01:20,686 : INFO : Test_Login : test_page_title_001 : 28 : Taking screenshot
+2023-08-10 22:01:25,059 : INFO : Test_Login : test_page_title_001 : 33 : Testcase test_page_title_001 is passed
+2023-08-10 22:01:25,060 : INFO : Test_Login : test_page_title_001 : 40 : Testcase test_page_title_001 is completed
+
+2023-08-10 22:01:34,975 : INFO : Test_Login : test_login_002 : 43 : Testcase test_login_002 is started
+2023-08-10 22:01:34,976 : INFO : Test_Login : test_login_002 : 44 : Opening browser
+2023-08-10 22:01:34,976 : INFO : Test_Login : test_login_002 : 47 : Entering Username
+2023-08-10 22:01:36,468 : INFO : Test_Login : test_login_002 : 49 : Entering password :Admin
+2023-08-10 22:01:36,606 : INFO : Test_Login : test_login_002 : 51 : Clicking in login button :admin1234
+2023-08-10 22:01:36,973 : INFO : Test_Login : test_login_002 : 54 : Checking login status
+2023-08-10 22:01:47,223 : INFO : Test_Login : test_login_002 : 73 : Testcase test_login_002 is failed
+2023-08-10 22:05:54,724 : INFO : Test_Login : test_page_title_001 : 23 : Testcase test_page_title_001 is started
+2023-08-10 22:05:54,742 : INFO : Test_Login : test_page_title_001 : 24 : Opening browser
+2023-08-10 22:05:54,750 : INFO : Test_Login : test_page_title_001 : 26 : Page Title is OrangeHRM
+2023-08-10 22:05:54,757 : INFO : Test_Login : test_page_title_001 : 28 : Taking screenshot
+2023-08-10 22:05:58,946 : INFO : Test_Login : test_page_title_001 : 33 : Testcase test_page_title_001 is passed
+2023-08-10 22:05:58,946 : INFO : Test_Login : test_page_title_001 : 40 : Testcase test_page_title_001 is completed
+
+2023-08-10 22:06:08,280 : INFO : Test_Login : test_login_002 : 43 : Testcase test_login_002 is started
+2023-08-10 22:06:08,281 : INFO : Test_Login : test_login_002 : 44 : Opening browser
+2023-08-10 22:06:08,281 : INFO : Test_Login : test_login_002 : 47 : Entering Username
+2023-08-10 22:06:09,108 : INFO : Test_Login : test_login_002 : 49 : Entering password :Admin
+2023-08-10 22:06:09,238 : INFO : Test_Login : test_login_002 : 51 : Clicking in login button :admin1234
+2023-08-10 22:06:09,362 : INFO : Test_Login : test_login_002 : 54 : Checking login status
+2023-08-10 22:06:20,045 : INFO : Test_Login : test_login_002 : 73 : Testcase test_login_002 is failed
+2023-08-10 22:13:28,721 : INFO : Test_Login : test_login_002 : 43 : Testcase test_login_002 is started
+2023-08-10 22:13:28,749 : INFO : Test_Login : test_login_002 : 44 : Opening browser
+2023-08-10 22:13:28,749 : INFO : Test_Login : test_login_002 : 47 : Entering Username
+2023-08-10 22:13:29,202 : INFO : Test_Login : test_page_title_001 : 23 : Testcase test_page_title_001 is started
+2023-08-10 22:13:29,202 : INFO : Test_Login : test_page_title_001 : 24 : Opening browser
+2023-08-10 22:13:29,220 : INFO : Test_Login : test_page_title_001 : 26 : Page Title is OrangeHRM
+2023-08-10 22:13:29,228 : INFO : Test_Login : test_page_title_001 : 28 : Taking screenshot
+2023-08-10 22:13:30,084 : INFO : Test_Login : test_login_002 : 49 : Entering password :Admin
+2023-08-10 22:13:30,528 : INFO : Test_Login : test_login_002 : 51 : Clicking in login button :admin1234
+2023-08-10 22:13:30,748 : INFO : Test_Login : test_login_002 : 54 : Checking login status
+2023-08-10 22:13:34,033 : INFO : Test_Login : test_page_title_001 : 33 : Testcase test_page_title_001 is passed
+2023-08-10 22:13:34,033 : INFO : Test_Login : test_page_title_001 : 40 : Testcase test_page_title_001 is completed
+
+2023-08-10 22:13:41,541 : INFO : Test_Login : test_login_002 : 73 : Testcase test_login_002 is failed
+2023-08-19 00:37:07,076 : INFO : Test_Login : test_login_002 : 43 : Testcase test_login_002 is started
+2023-08-19 00:37:07,107 : INFO : Test_Login : test_login_002 : 44 : Opening browser
+2023-08-19 00:37:07,107 : INFO : Test_Login : test_login_002 : 47 : Entering Username
+2023-08-19 00:37:09,316 : INFO : Test_Login : test_login_002 : 49 : Entering password :Admin
+2023-08-19 00:37:09,598 : INFO : Test_Login : test_login_002 : 51 : Clicking in login button :admin1234
+2023-08-19 00:37:09,989 : INFO : Test_Login : test_login_002 : 54 : Checking login status
+2023-08-19 00:37:20,741 : INFO : Test_Login : test_login_002 : 73 : Testcase test_login_002 is failed

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>OrangeHRMreport.html</title>
+    <link href="assets/style.css" rel="stylesheet" type="text/css"/></head>
+  <body onLoad="init()">
+    <script>/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+function toArray(iter) {
+    if (iter === null) {
+        return null;
+    }
+    return Array.prototype.slice.call(iter);
+}
+
+function find(selector, elem) { // eslint-disable-line no-redeclare
+    if (!elem) {
+        elem = document;
+    }
+    return elem.querySelector(selector);
+}
+
+function findAll(selector, elem) {
+    if (!elem) {
+        elem = document;
+    }
+    return toArray(elem.querySelectorAll(selector));
+}
+
+function sortColumn(elem) {
+    toggleSortStates(elem);
+    const colIndex = toArray(elem.parentNode.childNodes).indexOf(elem);
+    let key;
+    if (elem.classList.contains('result')) {
+        key = keyResult;
+    } else if (elem.classList.contains('links')) {
+        key = keyLink;
+    } else {
+        key = keyAlpha;
+    }
+    sortTable(elem, key(colIndex));
+}
+
+function showAllExtras() { // eslint-disable-line no-unused-vars
+    findAll('.col-result').forEach(showExtras);
+}
+
+function hideAllExtras() { // eslint-disable-line no-unused-vars
+    findAll('.col-result').forEach(hideExtras);
+}
+
+function showExtras(colresultElem) {
+    const extras = colresultElem.parentNode.nextElementSibling;
+    const expandcollapse = colresultElem.firstElementChild;
+    extras.classList.remove('collapsed');
+    expandcollapse.classList.remove('expander');
+    expandcollapse.classList.add('collapser');
+}
+
+function hideExtras(colresultElem) {
+    const extras = colresultElem.parentNode.nextElementSibling;
+    const expandcollapse = colresultElem.firstElementChild;
+    extras.classList.add('collapsed');
+    expandcollapse.classList.remove('collapser');
+    expandcollapse.classList.add('expander');
+}
+
+function showFilters() {
+    let visibleString = getQueryParameter('visible') || 'all';
+    visibleString = visibleString.toLowerCase();
+    const checkedItems = visibleString.split(',');
+
+    const filterItems = document.getElementsByClassName('filter');
+    for (let i = 0; i < filterItems.length; i++) {
+        filterItems[i].hidden = false;
+
+        if (visibleString != 'all') {
+            filterItems[i].checked = checkedItems.includes(filterItems[i].getAttribute('data-test-result'));
+            filterTable(filterItems[i]);
+        }
+    }
+}
+
+function addCollapse() {
+    // Add links for show/hide all
+    const resulttable = find('table#results-table');
+    const showhideall = document.createElement('p');
+    showhideall.innerHTML = '<a href="javascript:showAllExtras()">Show all details</a> / ' +
+                            '<a href="javascript:hideAllExtras()">Hide all details</a>';
+    resulttable.parentElement.insertBefore(showhideall, resulttable);
+
+    // Add show/hide link to each result
+    findAll('.col-result').forEach(function(elem) {
+        const collapsed = getQueryParameter('collapsed') || 'Passed';
+        const extras = elem.parentNode.nextElementSibling;
+        const expandcollapse = document.createElement('span');
+        if (extras.classList.contains('collapsed')) {
+            expandcollapse.classList.add('expander');
+        } else if (collapsed.includes(elem.innerHTML)) {
+            extras.classList.add('collapsed');
+            expandcollapse.classList.add('expander');
+        } else {
+            expandcollapse.classList.add('collapser');
+        }
+        elem.appendChild(expandcollapse);
+
+        elem.addEventListener('click', function(event) {
+            if (event.currentTarget.parentNode.nextElementSibling.classList.contains('collapsed')) {
+                showExtras(event.currentTarget);
+            } else {
+                hideExtras(event.currentTarget);
+            }
+        });
+    });
+}
+
+function getQueryParameter(name) {
+    const match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
+function init () { // eslint-disable-line no-unused-vars
+    resetSortHeaders();
+
+    addCollapse();
+
+    showFilters();
+
+    sortColumn(find('.initial-sort'));
+
+    findAll('.sortable').forEach(function(elem) {
+        elem.addEventListener('click',
+            function() {
+                sortColumn(elem);
+            }, false);
+    });
+}
+
+function sortTable(clicked, keyFunc) {
+    const rows = findAll('.results-table-row');
+    const reversed = !clicked.classList.contains('asc');
+    const sortedRows = sort(rows, keyFunc, reversed);
+    /* Whole table is removed here because browsers acts much slower
+     * when appending existing elements.
+     */
+    const thead = document.getElementById('results-table-head');
+    document.getElementById('results-table').remove();
+    const parent = document.createElement('table');
+    parent.id = 'results-table';
+    parent.appendChild(thead);
+    sortedRows.forEach(function(elem) {
+        parent.appendChild(elem);
+    });
+    document.getElementsByTagName('BODY')[0].appendChild(parent);
+}
+
+function sort(items, keyFunc, reversed) {
+    const sortArray = items.map(function(item, i) {
+        return [keyFunc(item), i];
+    });
+
+    sortArray.sort(function(a, b) {
+        const keyA = a[0];
+        const keyB = b[0];
+
+        if (keyA == keyB) return 0;
+
+        if (reversed) {
+            return keyA < keyB ? 1 : -1;
+        } else {
+            return keyA > keyB ? 1 : -1;
+        }
+    });
+
+    return sortArray.map(function(item) {
+        const index = item[1];
+        return items[index];
+    });
+}
+
+function keyAlpha(colIndex) {
+    return function(elem) {
+        return elem.childNodes[1].childNodes[colIndex].firstChild.data.toLowerCase();
+    };
+}
+
+function keyLink(colIndex) {
+    return function(elem) {
+        const dataCell = elem.childNodes[1].childNodes[colIndex].firstChild;
+        return dataCell == null ? '' : dataCell.innerText.toLowerCase();
+    };
+}
+
+function keyResult(colIndex) {
+    return function(elem) {
+        const strings = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed',
+            'Skipped', 'Passed'];
+        return strings.indexOf(elem.childNodes[1].childNodes[colIndex].firstChild.data);
+    };
+}
+
+function resetSortHeaders() {
+    findAll('.sort-icon').forEach(function(elem) {
+        elem.parentNode.removeChild(elem);
+    });
+    findAll('.sortable').forEach(function(elem) {
+        const icon = document.createElement('div');
+        icon.className = 'sort-icon';
+        icon.textContent = 'vvv';
+        elem.insertBefore(icon, elem.firstChild);
+        elem.classList.remove('desc', 'active');
+        elem.classList.add('asc', 'inactive');
+    });
+}
+
+function toggleSortStates(elem) {
+    //if active, toggle between asc and desc
+    if (elem.classList.contains('active')) {
+        elem.classList.toggle('asc');
+        elem.classList.toggle('desc');
+    }
+
+    //if inactive, reset all other functions and add ascending active
+    if (elem.classList.contains('inactive')) {
+        resetSortHeaders();
+        elem.classList.remove('inactive');
+        elem.classList.add('active');
+    }
+}
+
+function isAllRowsHidden(value) {
+    return value.hidden == false;
+}
+
+function filterTable(elem) { // eslint-disable-line no-unused-vars
+    const outcomeAtt = 'data-test-result';
+    const outcome = elem.getAttribute(outcomeAtt);
+    const classOutcome = outcome + ' results-table-row';
+    const outcomeRows = document.getElementsByClassName(classOutcome);
+
+    for(let i = 0; i < outcomeRows.length; i++){
+        outcomeRows[i].hidden = !elem.checked;
+    }
+
+    const rows = findAll('.results-table-row').filter(isAllRowsHidden);
+    const allRowsHidden = rows.length == 0 ? true : false;
+    const notFoundMessage = document.getElementById('not-found-message');
+    notFoundMessage.hidden = !allRowsHidden;
+}
+</script>
+    <h1>OrangeHRMreport.html</h1>
+    <p>Report generated on 19-Aug-2023 at 00:37:27 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a> v3.2.0</p>
+    <h2>Summary</h2>
+    <p>1 tests ran in 45.95 seconds. </p>
+    <p class="filter" hidden="true">(Un)check the boxes to filter the results.</p><input checked="true" class="filter" data-test-result="passed" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="passed">0 passed</span>, <input checked="true" class="filter" data-test-result="skipped" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="skipped">0 skipped</span>, <input checked="true" class="filter" data-test-result="failed" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="failed">1 failed</span>, <input checked="true" class="filter" data-test-result="error" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="error">1 errors</span>, <input checked="true" class="filter" data-test-result="xfailed" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="xfailed">0 expected failures</span>, <input checked="true" class="filter" data-test-result="xpassed" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="xpassed">0 unexpected passes</span>
+    <h2>Results</h2>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable result initial-sort" col="result">Result</th>
+          <th class="sortable" col="name">Test</th>
+          <th class="sortable" col="duration">Duration</th>
+          <th class="sortable links" col="links">Links</th></tr>
+        <tr hidden="true" id="not-found-message">
+          <th colspan="4">No results found. Try to check the filters</th></tr></thead>
+      <tbody class="error results-table-row">
+        <tr>
+          <td class="col-result">Error</td>
+          <td class="col-name">testCases/test_login.py::Test_Login::test_page_title_001::setup</td>
+          <td class="col-duration">6.43</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">[gw0] win32 -- Python 3.11.4 G:\OrangeHRM\venv\Scripts\python.exe<br/>[gw0] win32 -- Python 3.11.4 G:\OrangeHRM\venv\Scripts\python.exe<br/><br/>self = &lt;selenium.webdriver.edge.service.Service object at 0x000001F0E2C555D0&gt;<br/>path = &#x27;C:\\Users\\Anup Sir\\.cache\\selenium\\msedgedriver\\win64\\115.0.1901.203\\msedgedriver.exe&#x27;<br/><br/>    def _start_process(self, path: str) -&gt; None:<br/>        &quot;&quot;&quot;Creates a subprocess by executing the command provided.<br/>    <br/>        :param cmd: full command to execute<br/>        &quot;&quot;&quot;<br/>        cmd = [path]<br/>        cmd.extend(self.command_line_args())<br/>        close_file_descriptors = self.popen_kw.pop(&quot;close_fds&quot;, system() != &quot;Windows&quot;)<br/>        try:<br/>&gt;           self.process = subprocess.Popen(<br/>                cmd,<br/>                env=self.env,<br/>                close_fds=close_file_descriptors,<br/>                stdout=self.log_output,<br/>                stderr=self.log_output,<br/>                stdin=PIPE,<br/>                creationflags=self.creation_flags,<br/>                **self.popen_kw,<br/>            )<br/><br/>venv\Lib\site-packages\selenium\webdriver\common\service.py:206: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>C:\Users\Anup Sir\AppData\Local\Programs\Python\Python311\Lib\subprocess.py:1026: in __init__<br/>    self._execute_child(args, executable, preexec_fn, close_fds,<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>self = &lt;Popen: returncode: None args: [&#x27;C:\\Users\\Anup Sir\\.cache\\selenium\\msed...&gt;<br/>args = &#x27;&quot;C:\\Users\\Anup Sir\\.cache\\selenium\\msedgedriver\\win64\\115.0.1901.203\\msedgedriver.exe&quot; --port=52325&#x27;, executable = None, preexec_fn = None<br/>close_fds = False, pass_fds = (), cwd = None<br/>env = environ({&#x27;TERM_SESSION_ID&#x27;: &#x27;4cedecfc-2246-43b1-a5ce-98aba3a6bda9&#x27;, &#x27;COMMONPROGRAMW6432&#x27;: &#x27;C:\\Program Files\\Common F...T_XDIST_WORKER_COUNT&#x27;: &#x27;2&#x27;, &#x27;PYTEST_CURRENT_TEST&#x27;: &#x27;testCases/test_login.py::Test_Login::test_page_title_001 (setup)&#x27;})<br/>startupinfo = &lt;subprocess.STARTUPINFO object at 0x000001F0E2C55E50&gt;, creationflags = 0, shell = False, p2cread = Handle(564), p2cwrite = 17, c2pread = -1<br/>c2pwrite = Handle(852), errread = -1, errwrite = Handle(556), unused_restore_signals = True, unused_gid = None, unused_gids = None, unused_uid = None<br/>unused_umask = -1, unused_start_new_session = False, unused_process_group = -1<br/><br/>    def _execute_child(self, args, executable, preexec_fn, close_fds,<br/>                       pass_fds, cwd, env,<br/>                       startupinfo, creationflags, shell,<br/>                       p2cread, p2cwrite,<br/>                       c2pread, c2pwrite,<br/>                       errread, errwrite,<br/>                       unused_restore_signals,<br/>                       unused_gid, unused_gids, unused_uid,<br/>                       unused_umask,<br/>                       unused_start_new_session, unused_process_group):<br/>        &quot;&quot;&quot;Execute program (MS Windows version)&quot;&quot;&quot;<br/>    <br/>        assert not pass_fds, &quot;pass_fds not supported on Windows.&quot;<br/>    <br/>        if isinstance(args, str):<br/>            pass<br/>        elif isinstance(args, bytes):<br/>            if shell:<br/>                raise TypeError(&#x27;bytes args is not allowed on Windows&#x27;)<br/>            args = list2cmdline([args])<br/>        elif isinstance(args, os.PathLike):<br/>            if shell:<br/>                raise TypeError(&#x27;path-like args is not allowed when &#x27;<br/>                                &#x27;shell is true&#x27;)<br/>            args = list2cmdline([args])<br/>        else:<br/>            args = list2cmdline(args)<br/>    <br/>        if executable is not None:<br/>            executable = os.fsdecode(executable)<br/>    <br/>        # Process startup details<br/>        if startupinfo is None:<br/>            startupinfo = STARTUPINFO()<br/>        else:<br/>            # bpo-34044: Copy STARTUPINFO since it is modified above,<br/>            # so the caller can reuse it multiple times.<br/>            startupinfo = startupinfo.copy()<br/>    <br/>        use_std_handles = -1 not in (p2cread, c2pwrite, errwrite)<br/>        if use_std_handles:<br/>            startupinfo.dwFlags |= _winapi.STARTF_USESTDHANDLES<br/>            startupinfo.hStdInput = p2cread<br/>            startupinfo.hStdOutput = c2pwrite<br/>            startupinfo.hStdError = errwrite<br/>    <br/>        attribute_list = startupinfo.lpAttributeList<br/>        have_handle_list = bool(attribute_list and<br/>                                &quot;handle_list&quot; in attribute_list and<br/>                                attribute_list[&quot;handle_list&quot;])<br/>    <br/>        # If we were given an handle_list or need to create one<br/>        if have_handle_list or (use_std_handles and close_fds):<br/>            if attribute_list is None:<br/>                attribute_list = startupinfo.lpAttributeList = {}<br/>            handle_list = attribute_list[&quot;handle_list&quot;] = \<br/>                list(attribute_list.get(&quot;handle_list&quot;, []))<br/>    <br/>            if use_std_handles:<br/>                handle_list += [int(p2cread), int(c2pwrite), int(errwrite)]<br/>    <br/>            handle_list[:] = self._filter_handle_list(handle_list)<br/>    <br/>            if handle_list:<br/>                if not close_fds:<br/>                    warnings.warn(&quot;startupinfo.lpAttributeList[&#x27;handle_list&#x27;] &quot;<br/>                                  &quot;overriding close_fds&quot;, RuntimeWarning)<br/>    <br/>                # When using the handle_list we always request to inherit<br/>                # handles but the only handles that will be inherited are<br/>                # the ones in the handle_list<br/>                close_fds = False<br/>    <br/>        if shell:<br/>            startupinfo.dwFlags |= _winapi.STARTF_USESHOWWINDOW<br/>            startupinfo.wShowWindow = _winapi.SW_HIDE<br/>            if not executable:<br/>                # gh-101283: without a fully-qualified path, before Windows<br/>                # checks the system directories, it first looks in the<br/>                # application directory, and also the current directory if<br/>                # NeedCurrentDirectoryForExePathW(ExeName) is true, so try<br/>                # to avoid executing unqualified &quot;cmd.exe&quot;.<br/>                comspec = os.environ.get(&#x27;ComSpec&#x27;)<br/>                if not comspec:<br/>                    system_root = os.environ.get(&#x27;SystemRoot&#x27;, &#x27;&#x27;)<br/>                    comspec = os.path.join(system_root, &#x27;System32&#x27;, &#x27;cmd.exe&#x27;)<br/>                    if not os.path.isabs(comspec):<br/>                        raise FileNotFoundError(&#x27;shell not found: neither %ComSpec% nor %SystemRoot% is set&#x27;)<br/>                if os.path.isabs(comspec):<br/>                    executable = comspec<br/>            else:<br/>                comspec = executable<br/>    <br/>            args = &#x27;{} /c &quot;{}&quot;&#x27;.format (comspec, args)<br/>    <br/>        if cwd is not None:<br/>            cwd = os.fsdecode(cwd)<br/>    <br/>        sys.audit(&quot;subprocess.Popen&quot;, executable, args, cwd, env)<br/>    <br/>        # Start the process<br/>        try:<br/>&gt;           hp, ht, pid, tid = _winapi.CreateProcess(executable, args,<br/>                                     # no special security<br/>                                     None, None,<br/>                                     int(not close_fds),<br/>                                     creationflags,<br/>                                     env,<br/>                                     cwd,<br/>                                     startupinfo)<br/><span class="error">E                                    PermissionError: [WinError 32] The process cannot access the file because it is being used by another process</span><br/><br/>C:\Users\Anup Sir\AppData\Local\Programs\Python\Python311\Lib\subprocess.py:1538: PermissionError<br/><br/>The above exception was the direct cause of the following exception:<br/><br/>browser = &#x27;edge&#x27;<br/><br/>    @pytest.fixture<br/>    def setup(browser):<br/>        if browser == &quot;chrome&quot;:<br/>            driver = webdriver.Chrome()<br/>        elif browser == &quot;edge&quot;:<br/>&gt;           driver = webdriver.Edge()<br/><br/>testCases\conftest.py:20: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>venv\Lib\site-packages\selenium\webdriver\edge\webdriver.py:45: in __init__<br/>    super().__init__(<br/>venv\Lib\site-packages\selenium\webdriver\chromium\webdriver.py:53: in __init__<br/>    self.service.start()<br/>venv\Lib\site-packages\selenium\webdriver\common\service.py:105: in start<br/>    self._start_process(self._path)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>self = &lt;selenium.webdriver.edge.service.Service object at 0x000001F0E2C555D0&gt;<br/>path = &#x27;C:\\Users\\Anup Sir\\.cache\\selenium\\msedgedriver\\win64\\115.0.1901.203\\msedgedriver.exe&#x27;<br/><br/>    def _start_process(self, path: str) -&gt; None:<br/>        &quot;&quot;&quot;Creates a subprocess by executing the command provided.<br/>    <br/>        :param cmd: full command to execute<br/>        &quot;&quot;&quot;<br/>        cmd = [path]<br/>        cmd.extend(self.command_line_args())<br/>        close_file_descriptors = self.popen_kw.pop(&quot;close_fds&quot;, system() != &quot;Windows&quot;)<br/>        try:<br/>            self.process = subprocess.Popen(<br/>                cmd,<br/>                env=self.env,<br/>                close_fds=close_file_descriptors,<br/>                stdout=self.log_output,<br/>                stderr=self.log_output,<br/>                stdin=PIPE,<br/>                creationflags=self.creation_flags,<br/>                **self.popen_kw,<br/>            )<br/>            logger.debug(f&quot;Started executable: `{self._path}` in a child process with pid: {self.process.pid}&quot;)<br/>        except TypeError:<br/>            raise<br/>        except OSError as err:<br/>            if err.errno == errno.EACCES:<br/>&gt;               raise WebDriverException(<br/>                    f&quot;&#x27;{os.path.basename(self._path)}&#x27; executable may have wrong permissions.&quot;<br/>                ) from err<br/><span class="error">E               selenium.common.exceptions.WebDriverException: Message: &#x27;msedgedriver.exe&#x27; executable may have wrong permissions.</span><br/><br/>venv\Lib\site-packages\selenium\webdriver\common\service.py:221: WebDriverException[gw0] win32 -- Python 3.11.4 G:\OrangeHRM\venv\Scripts\python.exe<br/></div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">testCases/test_login.py::Test_Login::test_login_002</td>
+          <td class="col-duration">39.87</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">[gw1] win32 -- Python 3.11.4 G:\OrangeHRM\venv\Scripts\python.exe<br/>[gw1] win32 -- Python 3.11.4 G:\OrangeHRM\venv\Scripts\python.exe[gw1] win32 -- Python 3.11.4 G:\OrangeHRM\venv\Scripts\python.exe<br/><br/>self = &lt;testCases.test_login.Test_Login object at 0x0000024AAD8A3C90&gt;<br/>setup = &lt;selenium.webdriver.edge.webdriver.WebDriver (session=&quot;64dcbb03a593399bf8a4d682b0de1b58&quot;)&gt;<br/><br/>    def test_login_002(self, setup):<br/>        self.log.info(&quot;Testcase test_login_002 is started&quot;)<br/>        self.log.info(&quot;Opening browser&quot;)<br/>        self.driver = setup<br/>        self.lp = OrangeHRM_Login(self.driver)<br/>        self.log.info(&quot;Entering Username&quot;)<br/>        self.lp.Enter_Username(self.Username)<br/>        self.log.info(&quot;Entering password :&quot; + self.Username)<br/>        self.lp.Enter_Password(self.Password)<br/>        self.log.info(&quot;Clicking in login button :&quot; + self.Password)<br/>        self.lp.Click_Login()<br/>        # print(self.lp.Login_Status())<br/>        self.log.info(&quot;Checking login status&quot;)<br/>        if self.lp.Login_Status() == True:<br/>            self.log.info(&quot;taking screenshot&quot;)<br/>            allure.attach(self.driver.get_screenshot_as_png(), name=&quot;test_login_002_fail&quot;,<br/>                          attachment_type=AttachmentType.PNG)<br/>            self.driver.save_screenshot(&quot;G:\\OrangeHRM\\Screenshots\\test_login_002_pass.png&quot;)<br/>    <br/>            self.log.info(&quot;Clicking on Menu button&quot;)<br/>            self.lp.Click_Menu()<br/>            self.log.info(&quot;Clicking on logout button&quot;)<br/>            self.lp.Click_Logout()<br/>            #self.driver.close()<br/>            self.log.info(&quot;Testcase test_login_002 is passed&quot;)<br/>            assert True<br/>        else:<br/>            allure.attach(self.driver.get_screenshot_as_png(), name=&quot;test_login_002_pass&quot;,<br/>                          attachment_type=AttachmentType.PNG)<br/>            self.driver.save_screenshot(&quot;G:\\OrangeHRM\\Screenshots\\test_page_title_001_fail.png&quot;)<br/>            #self.driver.close()<br/>            self.log.info(&quot;Testcase test_login_002 is failed&quot;)<br/>&gt;           assert False<br/><span class="error">E           assert False</span><br/><br/>testCases\test_login.py:74: AssertionError[gw1] win32 -- Python 3.11.4 G:\OrangeHRM\venv\Scripts\python.exe<br/> -------------------------------Captured log call-------------------------------- <br/>INFO     Test_Login:test_login.py:43 Testcase test_login_002 is started
+INFO     Test_Login:test_login.py:44 Opening browser
+INFO     Test_Login:test_login.py:47 Entering Username
+INFO     Test_Login:test_login.py:49 Entering password :Admin
+INFO     Test_Login:test_login.py:51 Clicking in login button :admin1234
+INFO     Test_Login:test_login.py:54 Checking login status
+INFO     Test_Login:test_login.py:73 Testcase test_login_002 is failed<br/></div></td></tr></tbody></table></body></html>
